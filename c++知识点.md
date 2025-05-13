@@ -1,3 +1,5 @@
+
+
 # C++
 
 [TOC]
@@ -533,6 +535,10 @@ const double PI = 3.14159;  // 定义全局常量
 
 静态变量默认初始化为零（对于基本数据类型）。
 
+
+
+
+
 ### define 和 inline 的区别
 
 面试简答：
@@ -708,7 +714,7 @@ int main() {
 
 2，struct的成员默认公有，继承默认公有继承；class的成员默认私有，继承默认私有继承。
 
-3，struct适合简答的数据聚会；  设计具有继承、多态的类时，使用class。
+3，struct适合简单的数据聚合；  设计具有继承、多态的类时，使用class。
 
 通常， struct ⽤于表示==⼀组相关的数据==，⽽ class ⽤于表示==⼀个封装了数据和操作的对象==,在实际使⽤中，可以根据具体的需求选择使⽤ struct 或 class 。
 
@@ -1372,7 +1378,7 @@ C++中的多态性是通过虚函数（virtual function）和虚函数表（vtab
 
 多态允许==**基类类型的指针或引⽤指向派⽣类对象，从而调用派生类的函数**==。
 
-**虚函数表：**通常存储在==程序的全局或静态内存区域==中，其中==存储了指向实际函数的指针==。这个表在运⾏时⽤于动态查找调⽤的函数。
+**虚函数表：**通常存储在==程序的全局或静态内存区域==中，其中==存储了指向实际函数的指针==，是一个函数指针数组。这个表在运⾏时⽤于动态查找调⽤的函数。
 
 虚函数的查询依赖于对象的 `vtable`虚函数表和`vptr`虚表指针
 
@@ -1755,22 +1761,60 @@ public:
 
 **定义**：移动构造函数是一个构造函数，用于通过==移动资源的方式初始化对象==，而不是通过复制。它**接受一个右值引用**作为参数，适用于优化资源管理，特别是在处理动态分配的内存时。
 
+##### 示例代码
+
 ```cpp
+#include <iostream>
+#include <string>
+#include <utility> // for std::move
+
 class MyClass {
 public:
     int* data;
-    // 移动构造函数
-    MyClass(MyClass&& other)  : data(other.data) {
-        other.data = nullptr; // 转移所有权
-    }
-    // 构造函数
+
+    // 参数化构造函数
     MyClass(int size) {
-        data = new int[size]; // 动态分配内存
+        data = new int[size];
+        std::cout << "Parameterized Constructor called" << std::endl;
+    }
+
+    // 拷贝构造函数
+    MyClass(const MyClass& other) {
+        data = new int[1]; // 简化示例，实际应根据size分配
+        *data = *other.data;
+        std::cout << "Copy Constructor called" << std::endl;
+    }
+    // 拷贝赋值运算符
+    MyClass& operator=(const MyClass& other) {
+        if (this != &other) {  // 防止自赋值
+            value = other.value;
+            std::cout << "Copy Assignment (" << value << ")\n";
+        }
+        return *this;
+    }
+
+     //拷贝构造函数用于始化新对象（如 A a = b; 或 A a(b);）。
+    //拷贝赋值运算符用于修改已有对象（如 a = b;）。
+
+    // 移动构造函数
+    MyClass(MyClass&& other) noexcept : data(other.data) {
+        other.data = nullptr;
+        std::cout << "Move Constructor called" << std::endl;
+    }
+
     // 析构函数
     ~MyClass() {
-        delete[] data; // 释放内存
+        delete data;
+        std::cout << "Destructor called" << std::endl;
     }
 };
+
+int main() {
+    MyClass obj1(10);           // 调用参数化构造函数
+    MyClass obj2 = std::move(obj1); // 调用移动构造函数
+    // 注意：obj1现在处于有效但未定义的状态
+    return 0;
+}
 ```
 
 ### 友元函数和友元类
@@ -2449,8 +2493,6 @@ public:
 
 4. 内存：vector需要预估元素数量 分配跟大的空间；**list不需要预分配**
 
-# 
-
 ### push_back 和 emplace_back 的区别
 
 都是尾部插入  
@@ -2651,7 +2693,9 @@ it = vec.begin() + 2;  // 重新获取迭代器
 
 这种结构中，当插入新节点时，只需要调整相关节点的指针关系，而不需要像 vector 那样移动或重新分配整个数据块。
 
-对于unordered_map和unordered_set使用哈希表实现，插入没有触发重新，迭代器就不会失效。
+对于unordered_map和unordered_set使用哈希表实现，插入没有触发重新哈希，迭代器就不会失效。
+
+
 
 
 
@@ -2842,7 +2886,7 @@ struct control_block {
 
 ### 右值引用   移动构造和赋值
 
-右值引用是 C++11 引入的一种新类型，它允许你在程序中区分“左值”（可以取地址的表达式）和“右值”（临时对象或不再使用的对象）。右值引用通过`&&`语法表示。
+**右值引用是 C++11 引入的一种新类型**，它允许你在程序中区分“左值”（可以取地址的表达式）和“右值”（临时对象或不再使用的对象）。右值引用通过`&&`语法表示。
 
 **移动语义**：
 
@@ -2969,7 +3013,7 @@ int main() {
 }
 ```
 
-### nullprt 和NULL
+### nullptr 和NULL
 
 - **`NULL`**：`NULL` 是C语言遗留下来的，在C++中仍然可以使用，但不够现代。
 - **`nullptr`**：`nullptr` 是C++11引入的新特性，推荐在现代C++代码中使用。
@@ -3014,10 +3058,6 @@ C++ 中，指针类型在条件判断（如 `if`、`while`）中会隐式转换�
 
 * **auto**: 会忽略顶层 const 和引用
 - **decltype**: 会保留表达式的所有类型信息，包括 const、引用和值类别(左值/右值)
-
-```
-
-```
 
 ### 范围for循环
 
@@ -3207,3 +3247,7 @@ private:c
 ```
 
 对主版本模板类、全特化类、偏特化类的调⽤优先级从⾼到低进⾏排序是：全特化类>偏特化类>主版本模板类。
+
+## 经典手撕
+
+手撕string vector
