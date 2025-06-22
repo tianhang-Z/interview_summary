@@ -307,7 +307,7 @@ const int& b5 = a; //用于声明引用变量，都是底层const
 
 * const常量在定义时必须初始化，之后无法更改
 
-* const可以修饰返回值和函数参数，const形参可以接收const和非const类型的实参，
+* **const可以修饰返回值和函数参数，const形参可以接收const和非const类型的实参**
   
   ```c
   void fun(const int& i){ //...}  //i 可以是 int 型或者 const int 型
@@ -349,7 +349,7 @@ const⽤于==定义常量==；⽽define⽤于==定义宏==，⽽==宏也可以�
 
 面试简答：
 
-const可能是运行时常量，也可能是编译时常量；constexpr用于明确声明编译时常量。
+const可能是运行时常量，也可能是编译时常量；**constexpr用于明确声明编译时常量**。
 
 - **`const`**：
   
