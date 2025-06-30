@@ -2155,7 +2155,7 @@ public:
 
 结构体的大小计算遵循结构体的对齐规则：
 
-1. **成员变量要==对齐到对齐数的整数倍的地址处==。** 对齐数即成员类型占用字节数。
+1. **成员变量要==对齐到自身对齐数的整数倍的地址处==。** 对齐数即成员类型占用字节数。
 
 2. **结构体的总大小为最大对齐数的整数倍**。
 
@@ -2172,8 +2172,14 @@ public:
        Inner inner;// 8 字节（对齐到 4）
        double d;   // 8 字节（对齐到 8）
    };  // Outer 的对齐值 = max(1, 4, 8) = 8，大小 = 1 + 7(padding) + 8 + 8 = 24
+   
+   Offset 0: char c
+   Offset 1-3: padding (3 bytes)
+   Offset 4-11: Inner inner (8 bytes)
+   Offset 12-15: padding (4 bytes)
+   Offset 16-23: double d (8 bytes)
    ```
-
+   
    
 
 <img src="./image/c++%E7%9F%A5%E8%AF%86%E7%82%B9_image/image-20241025112547035.png" alt="image-20241025112547035" style="zoom: 50%;" />
@@ -3331,6 +3337,55 @@ public:
 ```
 
 ## 模板
+
+### typename
+
+**`typename`** 主要用于模板编程，特别是在涉及 **依赖类型（dependent type）** 时，必须使用它来告诉编译器某个名称是一个类型，而不是变量或函数。
+
+(1) **在模板中访问嵌套依赖类型**
+
+当模板参数 `T` 内部有一个嵌套类型（如 `T::value_type`），并且 `T` 是一个模板参数时，必须使用 `typename` 来告诉编译器这是一个类型：
+
+```
+template <typename T>
+void foo() {
+    typename T::NestedType x;  // 必须加 typename，否则编译器无法确定 NestedType 是类型
+}
+```
+
+**如果不加 `typename`，编译器会报错**，因为它默认认为 `T::NestedType` 是一个静态成员变量或函数。
+
+**(2) 在模板中使用 `typedef` 或 `using` 定义的类型**
+
+如果模板内部使用了依赖类型的别名，也必须加 `typename`：
+
+```
+template <typename T>
+struct MyContainer {
+    using ValueType = typename T::value_type;  // 必须加 typename
+    typedef typename T::pointer PointerType;   // 必须加 typename
+};
+```
+
+**(3) 模板参数列表中的默认类型**
+
+如果模板参数的默认值是一个依赖类型，也需要 `typename`：
+
+```
+template <typename T, typename U = typename T::DefaultType>  // 必须加 typename
+class MyClass { ... };
+```
+
+**(4) 模板中的 `decltype` 或 `auto` 推导**
+
+如果 `decltype` 或 `auto` 推导出的类型是依赖类型，也需要 `typename`：
+
+```
+template <typename T>
+auto get_value(T t) -> typename T::value_type {  // 必须加 typename
+    return t.value();
+}
+```
 
 ### 模板全特化和偏特化
 
