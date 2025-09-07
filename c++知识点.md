@@ -171,7 +171,7 @@ int fprintf(FILE *stream, const char *format, ...);
 
 ### c代码的编译过程
 
-预处理  -E生成.i文件 处理include 、宏展开、处理#ifdef等条件编译 
+预处理  -E生成   .i文件 处理include 、宏展开、处理#ifdef等条件编译 
 
 编译  -S 生成 .s文件       生成汇编代码 
 
@@ -196,10 +196,11 @@ int fprintf(FILE *stream, const char *format, ...);
 ### 区分下面的指针
 
 ```c
-int *p[10]   //指针的数组  10个int指针
+int* p[10]   //指针的数组  10个int指针  ；  []的优先级比*高 
 int (*p)[10]   //指向int数组的 一个指针
-int *p(int)   //p函数 返回值为指针
+int* p(int)   //p函数 返回值为指针
 int (*p)(int)   // 函数指针 返回值和参数为int
+
 ```
 
 ### 关于const
@@ -246,11 +247,9 @@ const int& b5 = a; //用于声明引用变量，都是底层const
 
 #### const和static的区别
 
-一个是用于可变性的声明，一个是静态声明。
+const用于可变性的声明，static用于静态声明。
 
 ==解答思路：类外、类内、用于变量和函数==
-
-<img src="./image/c++%E7%9F%A5%E8%AF%86%E7%82%B9_image/image-20241022215100387.png" alt="image-20241022215100387" style="zoom:80%;" />
 
 ##### static
 
@@ -631,6 +630,8 @@ strlen(str); // 取的是这个字符串的长度，不包含结尾的 \0。大�
 ### extern
 
 定义：声明外部变量【在函数或者⽂件外部定义的全局变量】
+
+一般在头文件进行声明，使用时，其他文件只需要包含这个头文件。
 
 #### extern C
 
@@ -3450,5 +3451,58 @@ private:c
 
 ## 经典手撕
 
-手撕string vector
+#### 手撕 string
+
+```c++
+#ifndef __MYSTRING__
+#def __MYSTRING__
+
+class MyString {
+public:
+    MyString(const char* cstr=0);
+    MyString(const char* cstr);
+    MyString(const MyString& str);
+    MyString& operator=(const MyString& str);
+private:
+    char *data;
+}
+
+MyString::MyString(const char* cstr){
+    if(cstr){
+        data=new char[strlen(cstr)+1];
+        strcpy(data,cstr);
+    } else {
+        data = new char[1];
+        *data = '\0';
+    }
+}
+
+MyString::Mystring(const MyString& str){
+    data = new data[strlen(str.data)+1];
+    data = strcpy(data,str.data);
+}
+
+MyString& MyString::operator=(const MyString& str){
+    if(this == &str){
+        return *this;
+    } else {
+        deleta[] data;
+        data = new char[strlen(str.data)+1];
+        strcpy(data,str.data);
+    	return *this;
+    }
+}
+
+ostream& operator<<(ostream& osconst MyString& str){
+    os<<str.data;
+    return os;
+}
+
+
+
+#endif
+
+
+
+```
 
