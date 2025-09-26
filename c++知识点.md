@@ -2155,7 +2155,9 @@ public:
 
 ### 结构体内存对齐
 
-==对齐本质是空间换时间==   满足不同平台对合法地址的要求，使数据尽量一次访问得到。因为寄存器一般是8/ 32 /64位的  
+==对齐本质是空间换时间==   
+
+为了满足不同平台对合法地址的要求，使数据尽量一次访问得到。因为寄存器一般是8/ 32 /64位的  
 
 结构体内成员**按照声明顺序存储**，第一个成员地址和整个结构体地址相同。
 
@@ -3002,6 +3004,11 @@ struct control_block {
 };
 ```
 
+### 智能指针的线程安全
+
+- 引用计数操作通常是线程安全的
+- 智能指针所管理的对象本身的线程安全性，与智能指针无关，对智能指针的修改操作需要同步机制
+
 ### 左值和右值
 
 左值是指那些有明确内存地址的表达式，通常可以出现在赋值操作的左侧。
@@ -3457,4 +3464,73 @@ private:c
 ## 经典手撕
 
 手撕string vector
+
+```c++
+#ifndef __MYSTRING__
+#define __MYSTRING__
+
+class String
+{
+public:                                 
+   String(const char* cstr=0);                     
+   String(const String& str);                    
+   String& operator=(const String& str);         
+   ~String();                                    
+   char* get_c_str() const { return m_data; }
+private:
+   char* m_data;
+};
+
+#include <cstring>
+
+inline
+String::String(const char* cstr)
+{
+   if (cstr) {
+      m_data = new char[strlen(cstr)+1];
+      strcpy(m_data, cstr);
+   }
+   else {   
+      m_data = new char[1];
+      *m_data = '\0';
+   }
+}
+
+inline
+String::~String()
+{
+   delete[] m_data;
+}
+
+inline
+String& String::operator=(const String& str)
+{
+   if (this == &str)
+      return *this;
+
+   delete[] m_data;
+   m_data = new char[ strlen(str.m_data) + 1 ];
+   strcpy(m_data, str.m_data);
+   return *this;
+}
+
+inline
+String::String(const String& str)
+{
+   m_data = new char[ strlen(str.m_data) + 1 ];
+   strcpy(m_data, str.m_data);
+}
+
+#include <iostream>
+using namespace std;
+
+ostream& operator<<(ostream& os, const String& str)
+{
+   os << str.get_c_str();
+   return os;
+}
+
+#endif
+
+```
 
