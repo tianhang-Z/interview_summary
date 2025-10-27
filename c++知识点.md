@@ -199,7 +199,7 @@ int fprintf(FILE *stream, const char *format, ...);
 int *p[10]   //指针的数组  10个int指针
 int (*p)[10]   //指向int数组的 一个指针
 int *p(int)   //p函数 返回值为指针
-int (*p)(int)   // 函数指针 返回值和参数为int
+int (*p)(int)   // 函数指针 返回值和参数为int  等价于std::function<int(int)> 
 ```
 
 ### 关于const
